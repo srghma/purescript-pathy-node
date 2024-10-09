@@ -6,7 +6,7 @@ import Pathy.Path
 import Pathy.Sandboxed
 import Prelude
 
-import Control.Monad.Error.Class (throwError)
+import Control.Monad.Error.Class (class MonadThrow, throwError)
 import Data.Array ((!!))
 import Data.Either (Either)
 import Data.Maybe (Maybe(..), maybe)
@@ -44,6 +44,7 @@ prepare outerTmpDir = do
   A.mkdir (outerTmpDir <///> (Proxy :: _ "dir1"))
   A.writeTextFile UTF8 (outerTmpDir <///> (Proxy :: _ "dir1") <///> (Proxy :: _ "3.txt")) "3"
   A.writeTextFile UTF8 (outerTmpDir <///> (Proxy :: _ "dir1") <///> (Proxy :: _ "4.txt")) "4"
+
 
 test1 :: forall relOrAbs . IsRelOrAbs relOrAbs => PathyFS.HasPath (PathyFS.Dir relOrAbs) relOrAbs => SandboxedPath relOrAbs Dir -> Aff Unit
 test1 outerTmpDir = do
@@ -99,16 +100,21 @@ test1 outerTmpDir = do
 --   --   , expected: "(Left Error [ERR_DIR_CLOSED]: Directory handle was closed\n    at #readImpl"
 --   --   }
 
+sandboxOrThrow
+  :: forall a b m
+   . IsRelOrAbs a
+  => IsDirOrFile b
+  => MonadThrow Error m
+  => Path Abs Dir
+  -> Path a b
+  -> m (SandboxedPath a b)
+sandboxOrThrow root path = sandbox root path # maybe (throwError $ error $ "cannot sandbox path: root = " <> show root <> ", path = " <> show path) pure
+
 main :: Effect Unit
 main = launchAff_ do
   cwd <- liftEffect PathyFS.cwd
-  logShow $ debugPrintPath currentPrinter cwd
-  -- (outerTmpDir :: SandboxedPath Rel Dir) <- sandbox rootDir (currentDir </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test")) # maybe (throwError $ error "no") pure
-  (outerTmpDir :: SandboxedPath Rel Dir) <- sandbox rootDir (currentDir </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test")) # maybe (throwError $ error "no") pure
-  -- let
-    -- outerTmpDir :: SandboxedPath Rel Dir
-    -- outerTmpDir = sandboxAny (currentDir </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test"))
-    -- outerTmpDir :: SandboxedPath Abs Dir
-    -- outerTmpDir = sandboxAny (cwd </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test"))
+  -- logShow $ debugPrintPath currentPrinter cwd
+  (outerTmpDir :: SandboxedPath Rel Dir) <- sandboxOrThrow cwd (currentDir </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test"))
+  logShow $ printPath currentPrinter outerTmpDir
   prepare outerTmpDir
   test1 outerTmpDir
