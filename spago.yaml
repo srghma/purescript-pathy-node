@@ -1,0 +1,48 @@
+package:
+  name: pathy-node
+  publish:
+    license: MIT
+    version: 1.0.0
+    location:
+      githubOwner: srghma
+      githubRepo: purescript-pathy-node
+  dependencies:
+    - datetime
+    - effect
+    - either
+    - enums
+    - exceptions
+    - functions
+    - integers
+    - js-date
+    - maybe
+    - node-buffer
+    - node-path
+    - node-os
+    - node-streams
+    - nullable
+    - partial
+    - prelude
+    - strings
+    - unsafe-coerce
+    - refs
+    - pathy
+    - node-fs
+    - node-process
+    - strings
+  test:
+    main: Test.Main
+    dependencies:
+      - console
+      - aff
+      - arrays
+      - assert
+
+workspace:
+  packageSet:
+    registry: 60.3.0
+  extraPackages:
+    node-fs:
+      path: /home/srghma/projects/purescript-node-fs
+    pathy:
+      path: /home/srghma/projects/purescript-pathy
