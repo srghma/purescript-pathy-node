@@ -1,9 +1,8 @@
 module Test.Main where
 
-import Node.FS.Aff
-import Pathy
-import Pathy.Path
-import Pathy.Sandboxed
+import Pathy (class IsDirOrFile, class IsRelOrAbs, Abs, Dir, printPath)
+import Pathy.Path (AbsDir, Path, dir, (</>))
+import Pathy.Sandboxed (SandboxedPath, sandbox, sandboxAny, (<///>))
 import Prelude
 
 import Control.Monad.Error.Class (class MonadThrow, throwError)
@@ -19,20 +18,15 @@ import Effect.Class.Console (logShow)
 import Effect.Console (log)
 import Effect.Exception (Error, error)
 import Node.Encoding (Encoding(..))
-import Node.FS.Options as A
+import Node.FS.Options (opendirOptionsDefault, rmOptionsDefault) as A
 import Node.FS.Perms (permsAll)
-import Node.Path (FilePath)
-import Node.Path as Path
-import Pathy as P
-import Pathy.Node.FS.Aff as A
-import Pathy.Node.FS.Aff as PathyFs
+import Pathy.Node.FS.Aff (mkdir, mkdir', opendir', rm'_dir, writeTextFile) as A
 import Pathy.Node.FS.Aff.Dir (entries)
-import Pathy.Node.FS.Dir as PathyFS
-import Pathy.Node.FS.Dir as PathyFs
+import Pathy.Node.FS.Dir (path) as PathyFs
 import Pathy.Node.FS.Dirent (Dirent)
-import Pathy.Node.FS.Dirent as PathyFs
+import Pathy.Node.FS.Dirent (Dirent, parentPath) as PathyFs
 import Pathy.Node.OS.Internal.CurrentParserPrinter (currentPrinter)
-import Pathy.Node.Process as PathyFS
+import Pathy.Node.Process (cwd) as PathyFS
 import Test.Assert (assertEqual)
 import Type.Prelude (Proxy(..))
 
