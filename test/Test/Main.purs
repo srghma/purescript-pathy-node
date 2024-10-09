@@ -10,6 +10,7 @@ import Control.Monad.Error.Class (class MonadThrow, throwError)
 import Data.Array ((!!))
 import Data.Either (Either)
 import Data.Maybe (Maybe(..), maybe)
+import Data.String (Pattern(..), Replacement(..))
 import Data.String as String
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_, try)
@@ -35,7 +36,7 @@ import Pathy.Node.Process as PathyFS
 import Test.Assert (assertEqual)
 import Type.Prelude (Proxy(..))
 
-prepare :: forall relOrAbs . IsRelOrAbs relOrAbs => SandboxedPath relOrAbs Dir -> Aff Unit
+prepare :: SandboxedPath Dir -> Aff Unit
 prepare outerTmpDir = do
   A.rm'_dir outerTmpDir (A.rmOptionsDefault { recursive = true, force = true })
   A.mkdir' outerTmpDir { recursive: true, mode: permsAll }
@@ -46,59 +47,60 @@ prepare outerTmpDir = do
   A.writeTextFile UTF8 (outerTmpDir <///> (Proxy :: _ "dir1") <///> (Proxy :: _ "4.txt")) "4"
 
 
-test1 :: forall relOrAbs . IsRelOrAbs relOrAbs => PathyFS.HasPath (PathyFS.Dir relOrAbs) relOrAbs => SandboxedPath relOrAbs Dir -> Aff Unit
+-- test1 :: forall relOrAbs . IsRelOrAbs relOrAbs => PathyFS.HasPath (PathyFS.Dir relOrAbs) relOrAbs => SandboxedPath Dir -> Aff Unit
+test1 :: SandboxedPath Dir -> Aff Unit
 test1 outerTmpDir = do
+  let outerTmpDirPrinted = printPath currentPrinter outerTmpDir
   logShow $ printPath currentPrinter outerTmpDir
   dir <- A.opendir' outerTmpDir (A.opendirOptionsDefault { recursive = true })
+  let (relPath :: AbsDir) = PathyFs.path dir
   -- let (relPath :: RelDir) = PathyFs.path dir
-  let (relPath :: P.Path relOrAbs P.Dir) = PathyFs.path dir
-  pure unit
---   liftEffect $ log $ show relPath
---   (files' :: Array (Dirent Rel)) <- entries dir
---   liftEffect $ assertEqual
---     { actual: show files'
---     , expected:
---         """[Dirent Dirent {
---   name: 'dir1',
---   parentPath: './tmp/dir-entries-test/',
---   path: './tmp/dir-entries-test/',
---   [Symbol(type)]: 2
--- },Dirent Dirent {
---   name: '1.txt',
---   parentPath: './tmp/dir-entries-test/',
---   path: './tmp/dir-entries-test/',
---   [Symbol(type)]: 1
--- },Dirent Dirent {
---   name: '2.txt',
---   parentPath: './tmp/dir-entries-test/',
---   path: './tmp/dir-entries-test/',
---   [Symbol(type)]: 1
--- },Dirent Dirent {
---   name: '3.txt',
---   parentPath: 'tmp/dir-entries-test/dir1',
---   path: 'tmp/dir-entries-test/dir1',
---   [Symbol(type)]: 1
--- },Dirent Dirent {
---   name: '4.txt',
---   parentPath: 'tmp/dir-entries-test/dir1',
---   path: 'tmp/dir-entries-test/dir1',
---   [Symbol(type)]: 1
--- }]"""
---     }
---   case files' !! 0 of
---     Nothing -> throwError $ error "no"
---     Just file -> do
---       let (relPath :: RelDir) = PathyFs.parentPath file
---       liftEffect $ log $ show relPath
---
---   -- try (entries dir) >>= \(eitherFile :: Either Error (Array (Dirent String))) -> liftEffect $ assertEqual
---   --   { actual: String.take 74 $ show eitherFile
---   --   , expected: "(Left Error [ERR_DIR_CLOSED]: Directory handle was closed\n    at #readImpl"
---   --   }
---   -- try (entries dir) >>= \(eitherFile :: Either Error (Array (Dirent String))) -> liftEffect $ assertEqual
---   --   { actual: String.take 74 $ show eitherFile
---   --   , expected: "(Left Error [ERR_DIR_CLOSED]: Directory handle was closed\n    at #readImpl"
---   --   }
+  -- let (relPath :: P.Path P.Abs P.Dir) = PathyFs.path dir
+  liftEffect $ log $ show relPath
+  (files' :: Array (Dirent Abs)) <- entries dir
+  liftEffect $ assertEqual
+    { actual: show files' # String.replaceAll (Pattern outerTmpDirPrinted) (Replacement "$outerTmpDirPrinted$")
+    , expected: """[Dirent {
+  name: 'dir1',
+  parentPath: '$outerTmpDirPrinted$',
+  path: '$outerTmpDirPrinted$',
+  [Symbol(type)]: 2
+},Dirent {
+  name: '1.txt',
+  parentPath: '$outerTmpDirPrinted$',
+  path: '$outerTmpDirPrinted$',
+  [Symbol(type)]: 1
+},Dirent {
+  name: '2.txt',
+  parentPath: '$outerTmpDirPrinted$',
+  path: '$outerTmpDirPrinted$',
+  [Symbol(type)]: 1
+},Dirent {
+  name: '3.txt',
+  parentPath: '$outerTmpDirPrinted$dir1',
+  path: '$outerTmpDirPrinted$dir1',
+  [Symbol(type)]: 1
+},Dirent {
+  name: '4.txt',
+  parentPath: '$outerTmpDirPrinted$dir1',
+  path: '$outerTmpDirPrinted$dir1',
+  [Symbol(type)]: 1
+}]"""
+    }
+  case files' !! 0 of
+    Nothing -> throwError $ error "no"
+    Just file -> do
+      let (relPath :: AbsDir) = PathyFs.parentPath file
+      liftEffect $ log $ show relPath
+
+  try (entries dir) >>= \(eitherFile :: Either Error (Array (PathyFs.Dirent Abs))) -> liftEffect $ assertEqual
+    { actual: String.take 74 $ show eitherFile
+    , expected: "(Left Error [ERR_DIR_CLOSED]: Directory handle was closed\n    at #readImpl"
+    }
+  try (entries dir) >>= \(eitherFile :: Either Error (Array (PathyFs.Dirent Abs))) -> liftEffect $ assertEqual
+    { actual: String.take 74 $ show eitherFile
+    , expected: "(Left Error [ERR_DIR_CLOSED]: Directory handle was closed\n    at #readImpl"
+    }
 
 sandboxOrThrow
   :: forall a b m
@@ -107,14 +109,17 @@ sandboxOrThrow
   => MonadThrow Error m
   => Path Abs Dir
   -> Path a b
-  -> m (SandboxedPath a b)
+  -> m (SandboxedPath b)
 sandboxOrThrow root path = sandbox root path # maybe (throwError $ error $ "cannot sandbox path: root = " <> show root <> ", path = " <> show path) pure
 
 main :: Effect Unit
 main = launchAff_ do
   cwd <- liftEffect PathyFS.cwd
+  logShow $ printPath currentPrinter (sandboxAny cwd)
   -- logShow $ debugPrintPath currentPrinter cwd
-  (outerTmpDir :: SandboxedPath Rel Dir) <- sandboxOrThrow cwd (currentDir </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test"))
+  -- (outerTmpDir :: SandboxedPath Dir) <- sandboxOrThrow cwd (currentDir </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test"))
+  -- (outerTmpDir :: SandboxedPath Dir) <- sandboxOrThrow cwd (currentDir </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test"))
+  let (outerTmpDir :: SandboxedPath Dir) = sandboxAny (cwd </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test"))
   logShow $ printPath currentPrinter outerTmpDir
   prepare outerTmpDir
   test1 outerTmpDir
