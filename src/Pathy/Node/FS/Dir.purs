@@ -25,6 +25,6 @@ class HasPath dirRelOrAbs relOrAbs | dirRelOrAbs -> relOrAbs where
   path :: dirRelOrAbs -> P.Path relOrAbs P.Dir
 
 instance HasPath (Dir P.Rel) P.Rel where
-  path (Dir dir) = unsafePerformEffect $ parsePathOrThrow (Proxy :: _ "Path Rel Dir") { filePath: FS.path dir, moduleName , functionName: "path" }
+  path (Dir dir) = unsafePerformEffect $ parsePathOrThrow (Proxy :: _ "Path Rel Dir") { filePath: FS.path dir, moduleName, functionName: "path" }
 else instance HasPath (Dir P.Abs) P.Abs where
-  path (Dir dir) = unsafePerformEffect $ parsePathOrThrow (Proxy :: _ "Path Abs Dir") { filePath: FS.path dir , moduleName , functionName: "path" }
+  path (Dir dir) = unsafePerformEffect $ parsePathOrThrow (Proxy :: _ "Path Abs Dir") { filePath: FS.path dir, moduleName, functionName: "path" }

@@ -37,10 +37,12 @@ package:
       - aff
       - arrays
       - assert
+      - spec-node
+      - spec-discovery
 
 workspace:
   packageSet:
-    registry: 60.3.0
+    registry: 60.4.0
   extraPackages:
     node-fs:
       path: /home/srghma/projects/purescript-node-fs

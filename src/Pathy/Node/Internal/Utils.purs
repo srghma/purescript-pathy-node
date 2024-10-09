@@ -19,8 +19,8 @@ import Type.Prelude (Proxy(..))
 ensureTrailingSlash :: String -> String
 ensureTrailingSlash s =
   case String.charAt (String.length s - 1) s of
-       Just '/' -> s
-       _ -> s <> "/"
+    Just '/' -> s
+    _ -> s <> "/"
 
 data EnsureTrailingSlash = EnsureTrailingSlash_Always | EnsureTrailingSlash_No
 

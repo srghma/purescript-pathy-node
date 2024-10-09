@@ -23,6 +23,6 @@ class HasParentPath dirRelOrAbs relOrAbs | dirRelOrAbs -> relOrAbs where
   parentPath :: dirRelOrAbs -> P.Path relOrAbs P.Dir
 
 instance HasParentPath (Dirent P.Rel) P.Rel where
-  parentPath (Dirent dir) = unsafePerformEffect $ parsePathOrThrow (Proxy :: _ "Path Rel Dir") { filePath: FS.parentPath dir, moduleName , functionName: "parentPath" }
+  parentPath (Dirent dir) = unsafePerformEffect $ parsePathOrThrow (Proxy :: _ "Path Rel Dir") { filePath: FS.parentPath dir, moduleName, functionName: "parentPath" }
 else instance HasParentPath (Dirent P.Abs) P.Abs where
-  parentPath (Dirent dir) = unsafePerformEffect $ parsePathOrThrow (Proxy :: _ "Path Abs Dir") { filePath: FS.parentPath dir , moduleName , functionName: "parentPath" }
+  parentPath (Dirent dir) = unsafePerformEffect $ parsePathOrThrow (Proxy :: _ "Path Abs Dir") { filePath: FS.parentPath dir, moduleName, functionName: "parentPath" }

@@ -76,8 +76,8 @@ import Node.FS.Perms (Perms)
 import Node.FS.Stats (Stats)
 import Node.FS.Types (FileDescriptor, FileMode, SymlinkType)
 import Pathy (class IsDirOrFile, class IsRelOrAbs, Abs, Dir, File, printPath)
-import Pathy.Node.FS.Dir (Dir(..)) as PathyFs
-import Pathy.Node.FS.Dirent (Dirent(..)) as PathyFs
+import Pathy.Node.FS.Dir (Dir(..)) as PathyFS
+import Pathy.Node.FS.Dirent (Dirent(..)) as PathyFS
 import Pathy.Node.Internal.Utils (parsePathOrThrow, class AnyDirToVariant)
 import Pathy.Node.OS.Internal.CurrentParserPrinter (currentPrinter)
 import Pathy.Path (AbsAnyPathVariant, AbsDir, AnyAnyPathVariant)
@@ -234,12 +234,12 @@ readdirBuffer' :: SandboxedPath Dir -> ReaddirBufferOptions -> Aff (Array Buffer
 readdirBuffer' path = F.readdirBuffer' (printPath currentPrinter path)
 
 -- | Reads the contents of a directory and returns an Aff (Array (Dirent DirentNameTypeString)).
-readdirDirent :: SandboxedPath Dir -> Aff (Array (PathyFs.Dirent Abs))
-readdirDirent path = map (map PathyFs.Dirent) $ F.readdirDirent (printPath currentPrinter path)
+readdirDirent :: SandboxedPath Dir -> Aff (Array (PathyFS.Dirent Abs))
+readdirDirent path = map (map PathyFS.Dirent) $ F.readdirDirent (printPath currentPrinter path)
 
 -- | Reads the contents of a directory with options and returns Aff (Array (Dirent DirentNameTypeString)).
-readdirDirent' :: SandboxedPath Dir -> ReaddirDirentOptions -> Aff (Array (PathyFs.Dirent Abs))
-readdirDirent' path options = map (map PathyFs.Dirent) $ F.readdirDirent' (printPath currentPrinter path) options
+readdirDirent' :: SandboxedPath Dir -> ReaddirDirentOptions -> Aff (Array (PathyFS.Dirent Abs))
+readdirDirent' path options = map (map PathyFS.Dirent) $ F.readdirDirent' (printPath currentPrinter path) options
 
 -- | Reads the contents of a directory.
 readdirDirentBuffer :: SandboxedPath Dir -> Aff (Array (FS.Dirent FS.DirentNameTypeBuffer))
@@ -318,22 +318,22 @@ globDirent
   :: forall relOrAbs
    . IsRelOrAbs relOrAbs
   => Array (SandboxedPath File)
-  -> Aff (Array (PathyFs.Dirent Abs))
+  -> Aff (Array (PathyFS.Dirent Abs))
 globDirent paths = do
   let filePaths = map (printPath currentPrinter) paths
   arrayDirent <- F.globDirent filePaths
-  pure $ map PathyFs.Dirent arrayDirent
+  pure $ map PathyFS.Dirent arrayDirent
 
 globDirent'
   :: forall relOrAbs
    . IsRelOrAbs relOrAbs
   => Array (SandboxedPath File)
   -> GlobDirentOptions
-  -> Aff (Array (PathyFs.Dirent Abs))
+  -> Aff (Array (PathyFS.Dirent Abs))
 globDirent' paths options = do
   let filePaths = map (printPath currentPrinter) paths
   arrayDirent <- F.globDirent' filePaths options
-  pure $ map PathyFs.Dirent arrayDirent
+  pure $ map PathyFS.Dirent arrayDirent
 
 lchmod :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> Perms -> Aff Unit
 lchmod path = F.lchmod (printPath currentPrinter path)
@@ -344,11 +344,11 @@ lchown path = F.lchown (printPath currentPrinter path)
 lutimes :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> DateTime -> DateTime -> Aff Unit
 lutimes path = F.lutimes (printPath currentPrinter path)
 
-opendir :: SandboxedPath Dir -> Aff (PathyFs.Dir Abs)
-opendir path = map PathyFs.Dir $ F.opendir (printPath currentPrinter path)
+opendir :: SandboxedPath Dir -> Aff (PathyFS.Dir Abs)
+opendir path = map PathyFS.Dir $ F.opendir (printPath currentPrinter path)
 
-opendir' :: SandboxedPath Dir -> OpendirOptions -> Aff (PathyFs.Dir Abs)
-opendir' path options = map PathyFs.Dir $ F.opendir' (printPath currentPrinter path) options
+opendir' :: SandboxedPath Dir -> OpendirOptions -> Aff (PathyFS.Dir Abs)
+opendir' path options = map PathyFS.Dir $ F.opendir' (printPath currentPrinter path) options
 
 statfs :: forall b. IsDirOrFile b => SandboxedPath b -> Aff Stats
 statfs path = F.statfs (printPath currentPrinter path)
