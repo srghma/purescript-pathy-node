@@ -23,9 +23,9 @@ ensureTrailingSlash s =
     _ -> s <> "/"
 
 data EnsureTrailingSlash
+  -- | EnsureTrailingSlash_OnlyIfGettingStatsWillTellThatItIsReallyADear
   = EnsureTrailingSlash_Always
   | EnsureTrailingSlash_No
-  -- | EnsureTrailingSlash_OnlyIfGettingStatsWillTellThatItIsReallyADear
 
 class ParseToPathVariantOrThrow_KnownOutputType :: Symbol -> Type -> Constraint
 class ParseToPathVariantOrThrow_KnownOutputType symbol variant | symbol -> variant where
