@@ -1,33 +1,15 @@
 module Pathy.Node.FS.Options where
 
-import Node.FS.Options
+import Node.FS.Options (CpForce(..))
 import Prelude
 
-import Data.DateTime (DateTime)
 import Data.Maybe (Maybe(..))
-import Data.Traversable (traverse)
-import Data.Tuple (Tuple(..))
-import Effect (Effect)
-import Effect.Aff (Aff, Error)
 import Effect.Unsafe (unsafePerformEffect)
-import Node.Buffer (Buffer)
-import Node.Encoding (Encoding)
-import Node.FS.Aff as F
-import Node.FS.Constants (AccessMode, CopyMode, FileFlags, copyFile_NO_FLAGS)
-import Node.FS.Dirent as FS
+import Node.FS.Constants (CopyMode, copyFile_NO_FLAGS)
 import Node.FS.Options as NodeFs
-import Node.FS.Perms (Perms)
-import Node.FS.Stats (Stats)
-import Node.FS.Types (FileDescriptor, FileMode, SymlinkType)
 import Node.Path (FilePath)
-import Pathy (class IsDirOrFile, class IsRelOrAbs, Abs, AbsFile, Dir, File, Path, parsePath, printPath)
-import Pathy.Node.FS.Dir (Dir(..)) as PathyFS
-import Pathy.Node.FS.Dirent (Dirent(..)) as PathyFS
 import Pathy.Node.Internal.Utils (parsePathOrThrow)
-import Pathy.Node.OS.Internal.CurrentParserPrinter (currentParser, currentPrinter)
-import Pathy.Path (AbsAnyPathVariant, AbsDir, AnyAnyPathVariant)
-import Pathy.Sandboxed (SandboxedPath)
-import Record as Record
+import Pathy.Path (AbsAnyPathVariant)
 import Type.Prelude (Proxy(..))
 
 type CpFilterFunction a = a -> a -> Boolean

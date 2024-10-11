@@ -1,23 +1,12 @@
 module Pathy.Node.OS.Internal.CurrentParserPrinter where
 
-import Pathy.Parser
-import Pathy.Path
+import Pathy.Parser (Parser, posixParser)
 import Prelude
 
-import Control.Monad.Error.Class (throwError)
-import Data.Maybe (Maybe(..))
-import Data.Variant (Variant)
 import Effect (Effect)
-import Effect.Aff (Aff)
-import Effect.Exception (error)
 import Effect.Unsafe (unsafePerformEffect)
 import Node.OS (type_)
-import Node.OS as OS
-import Node.Path (FilePath)
-import Pathy (Abs, AbsAnyPathVariant, Dir, Parser, Printer, Rel, posixParser, posixPrinter, windowsPrinter)
-import Pathy.Parser as P
-import Pathy.Phantom (RelOrAbs)
-import Type.Prelude (Proxy(..))
+import Pathy (Printer, posixPrinter, windowsPrinter)
 
 data OS = Windows | Posix
 

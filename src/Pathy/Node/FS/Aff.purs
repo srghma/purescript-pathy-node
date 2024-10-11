@@ -13,8 +13,6 @@ module Pathy.Node.FS.Aff
   , cpDir
   , cpDir'
   , fdOpen
-  , glob
-  , glob'
   , globDirent
   , globDirent'
   , lchmod
@@ -64,34 +62,28 @@ module Pathy.Node.FS.Aff
   , writeTextFile'
   ) where
 
-import Node.FS.Options
 import Prelude
-
+import Node.FS.Options (AppendFileBufferOptions, CpFileOptions, GlobDirentOptions, MkdirOptions, OpendirOptions, ReadFileBufferOptions, ReadFileStringOptions, ReaddirBufferOptions, ReaddirDirentBufferOptions, ReaddirDirentOptions, ReaddirFilePathOptions, RealpathOptions, RmOptions, RmdirOptions, WriteFileBufferOptions, WriteFileStringOptions, rmOptionsDefault)
 import Data.DateTime (DateTime)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe)
 import Data.Traversable (traverse)
-import Data.Tuple (Tuple(..))
-import Effect (Effect)
 import Effect.Aff (Aff, Error)
-import Effect.Unsafe (unsafePerformEffect)
 import Node.Buffer (Buffer)
 import Node.Encoding (Encoding)
 import Node.FS.Aff as F
-import Node.FS.Constants (AccessMode, CopyMode, FileFlags, copyFile_NO_FLAGS)
+import Node.FS.Constants (AccessMode, CopyMode, FileFlags)
 import Node.FS.Dirent as FS
 import Node.FS.Perms (Perms)
 import Node.FS.Stats (Stats)
 import Node.FS.Types (FileDescriptor, FileMode, SymlinkType)
-import Node.Path (FilePath)
-import Pathy (class IsDirOrFile, class IsRelOrAbs, Abs, AbsFile, Dir, File, Path, parsePath, printPath)
+import Pathy (class IsDirOrFile, class IsRelOrAbs, Dir, File, printPath)
 import Pathy.Node.FS.Dir (Dir(..)) as PathyFS
 import Pathy.Node.FS.Dirent (Dirent(..)) as PathyFS
 import Pathy.Node.FS.Options as Pathy.Node.FS.Options
 import Pathy.Node.Internal.Utils (parsePathOrThrow)
-import Pathy.Node.OS.Internal.CurrentParserPrinter (currentParser, currentPrinter)
+import Pathy.Node.OS.Internal.CurrentParserPrinter (currentPrinter)
 import Pathy.Path (AbsAnyPathVariant, AbsDir, AnyAnyPathVariant)
 import Pathy.Sandboxed (SandboxedPath)
-import Record as Record
 import Type.Prelude (Proxy(..))
 
 moduleName :: String
@@ -238,11 +230,11 @@ readdirBuffer' :: SandboxedPath Dir -> ReaddirBufferOptions -> Aff (Array Buffer
 readdirBuffer' path = F.readdirBuffer' (printPath currentPrinter path)
 
 -- | Reads the contents of a directory and returns an Aff (Array (Dirent DirentNameTypeString)).
-readdirDirent :: SandboxedPath Dir -> Aff (Array (PathyFS.Dirent Abs))
+readdirDirent :: SandboxedPath Dir -> Aff (Array PathyFS.Dirent)
 readdirDirent path = map (map PathyFS.Dirent) $ F.readdirDirent (printPath currentPrinter path)
 
 -- | Reads the contents of a directory with options and returns Aff (Array (Dirent DirentNameTypeString)).
-readdirDirent' :: SandboxedPath Dir -> ReaddirDirentOptions -> Aff (Array (PathyFS.Dirent Abs))
+readdirDirent' :: SandboxedPath Dir -> ReaddirDirentOptions -> Aff (Array PathyFS.Dirent)
 readdirDirent' path options = map (map PathyFS.Dirent) $ F.readdirDirent' (printPath currentPrinter path) options
 
 -- | Reads the contents of a directory.
@@ -304,23 +296,23 @@ cpDir fromPath toPath = F.cpDir (printPath currentPrinter fromPath) (printPath c
 cpDir' :: SandboxedPath Dir -> SandboxedPath Dir -> Pathy.Node.FS.Options.CpDirOptions -> Aff Unit
 cpDir' fromPath toPath options = F.cpDir' (printPath currentPrinter fromPath) (printPath currentPrinter toPath) (Pathy.Node.FS.Options.cpDirOptionsToCpOptionsInternal options)
 
-glob
-  :: Array (SandboxedPath File)
-  -> Aff (Array AbsAnyPathVariant)
-glob path = F.glob (map (printPath currentPrinter) path) >>= traverse (\filePath -> parsePathOrThrow (Proxy :: _ "AbsAnyPathVariant") { filePath, moduleName, functionName: "path" })
-
-glob'
-  :: Array (SandboxedPath File)
-  -> GlobFilePathOptions
-  -> Aff (Array AbsAnyPathVariant)
-glob' paths options = do
-  let filePaths = map (printPath currentPrinter) paths
-  result <- F.glob' filePaths options
-  traverse (\filePath -> parsePathOrThrow (Proxy :: _ "AbsAnyPathVariant") { filePath, moduleName, functionName: "glob'" }) result
+-- COMMENTED BC UNSAFE (one can glob "*.js" - will parse as `Variant (absFile: smth)` - ok, but one can glob "dir*" - will parse as `Variant (absFile: smth)` - not ok!)
+-- glob
+--   :: Array (SandboxedPath File)
+--   -> Aff (Array AbsAnyPathVariant)
+-- glob path = F.glob (map (printPath currentPrinter) path) >>= traverse (\filePath -> parsePathOrThrow (Proxy :: _ "AbsAnyPathVariant") { filePath, moduleName, functionName: "path" })
+-- glob'
+--   :: Array (SandboxedPath File)
+--   -> GlobFilePathOptions
+--   -> Aff (Array AbsAnyPathVariant)
+-- glob' paths options = do
+--   let filePaths = map (printPath currentPrinter) paths
+--   result <- F.glob' filePaths options
+--   traverse (\filePath -> parsePathOrThrow (Proxy :: _ "AbsAnyPathVariant") { filePath, moduleName, functionName: "glob'" }) result
 
 globDirent
   :: Array (SandboxedPath File)
-  -> Aff (Array (PathyFS.Dirent Abs))
+  -> Aff (Array PathyFS.Dirent)
 globDirent paths = do
   let filePaths = map (printPath currentPrinter) paths
   arrayDirent <- F.globDirent filePaths
@@ -329,7 +321,7 @@ globDirent paths = do
 globDirent'
   :: Array (SandboxedPath File)
   -> GlobDirentOptions
-  -> Aff (Array (PathyFS.Dirent Abs))
+  -> Aff (Array PathyFS.Dirent)
 globDirent' paths options = do
   let filePaths = map (printPath currentPrinter) paths
   arrayDirent <- F.globDirent' filePaths options
@@ -344,10 +336,10 @@ lchown path = F.lchown (printPath currentPrinter path)
 lutimes :: forall b. IsDirOrFile b => SandboxedPath b -> DateTime -> DateTime -> Aff Unit
 lutimes path = F.lutimes (printPath currentPrinter path)
 
-opendir :: SandboxedPath Dir -> Aff (PathyFS.Dir Abs)
+opendir :: SandboxedPath Dir -> Aff PathyFS.Dir
 opendir path = map PathyFS.Dir $ F.opendir (printPath currentPrinter path)
 
-opendir' :: SandboxedPath Dir -> OpendirOptions -> Aff (PathyFS.Dir Abs)
+opendir' :: SandboxedPath Dir -> OpendirOptions -> Aff PathyFS.Dir
 opendir' path options = map PathyFS.Dir $ F.opendir' (printPath currentPrinter path) options
 
 statfs :: forall b. IsDirOrFile b => SandboxedPath b -> Aff Stats

@@ -8,8 +8,7 @@ import Data.Either (Either)
 import Data.Maybe (Maybe(..), maybe)
 import Data.String (Pattern(..), Replacement(..))
 import Data.String as String
-import Effect (Effect)
-import Effect.Aff (Aff, launchAff_, try)
+import Effect.Aff (Aff, try)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
 import Effect.Console (log)
@@ -21,7 +20,6 @@ import Pathy (class IsDirOrFile, class IsRelOrAbs, Abs, Dir, printPath)
 import Pathy.Node.FS.Aff (mkdir, mkdir', opendir', rm'_dir, writeTextFile) as A
 import Pathy.Node.FS.Aff.Dir (entries)
 import Pathy.Node.FS.Dir (path) as PathyFS
-import Pathy.Node.FS.Dirent (Dirent)
 import Pathy.Node.FS.Dirent (Dirent, parentPath) as PathyFS
 import Pathy.Node.OS.Internal.CurrentParserPrinter (currentPrinter)
 import Pathy.Node.Process (cwd) as PathyFS
@@ -51,7 +49,7 @@ test1 outerTmpDir = do
   -- let (relPath :: RelDir) = PathyFS.path dir
   -- let (relPath :: P.Path P.Abs P.Dir) = PathyFS.path dir
   liftEffect $ log $ show relPath
-  (files' :: Array (Dirent Abs)) <- entries dir
+  (files' :: Array PathyFS.Dirent) <- entries dir
   liftEffect $ assertEqual
     { actual: show files' # String.replaceAll (Pattern outerTmpDirPrinted) (Replacement "$outerTmpDirPrinted$")
     , expected:
@@ -88,11 +86,11 @@ test1 outerTmpDir = do
       let (relPath :: AbsDir) = PathyFS.parentPath file
       liftEffect $ log $ show relPath
 
-  try (entries dir) >>= \(eitherFile :: Either Error (Array (PathyFS.Dirent Abs))) -> liftEffect $ assertEqual
+  try (entries dir) >>= \(eitherFile :: Either Error (Array PathyFS.Dirent)) -> liftEffect $ assertEqual
     { actual: String.take 74 $ show eitherFile
     , expected: "(Left Error [ERR_DIR_CLOSED]: Directory handle was closed\n    at #readImpl"
     }
-  try (entries dir) >>= \(eitherFile :: Either Error (Array (PathyFS.Dirent Abs))) -> liftEffect $ assertEqual
+  try (entries dir) >>= \(eitherFile :: Either Error (Array PathyFS.Dirent)) -> liftEffect $ assertEqual
     { actual: String.take 74 $ show eitherFile
     , expected: "(Left Error [ERR_DIR_CLOSED]: Directory handle was closed\n    at #readImpl"
     }
