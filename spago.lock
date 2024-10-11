@@ -98,6 +98,7 @@
             "arrays",
             "assert",
             "console",
+            "debug",
             "spec-discovery",
             "spec-node"
           ],
@@ -117,6 +118,7 @@
             "contravariant",
             "control",
             "datetime",
+            "debug",
             "distributive",
             "effect",
             "either",
@@ -182,7 +184,7 @@
     },
     "package_set": {
       "address": {
-        "registry": "60.4.0"
+        "registry": "60.5.0"
       },
       "compiler": ">=0.15.15 <0.16.0",
       "content": {
@@ -397,6 +399,7 @@
         "js-promise-aff": "1.0.0",
         "js-timers": "6.1.0",
         "js-uri": "3.1.0",
+        "jsdom": "1.0.0",
         "json": "1.1.0",
         "json-codecs": "5.0.0",
         "justifill": "0.5.0",
@@ -910,6 +913,15 @@
         "partial",
         "prelude",
         "tuples"
+      ]
+    },
+    "debug": {
+      "type": "registry",
+      "version": "6.0.2",
+      "integrity": "sha256-vmkYFuXYuELBzeauvgHG6E6Kf/Hp1dAnxwE9ByHfwSg=",
+      "dependencies": [
+        "functions",
+        "prelude"
       ]
     },
     "distributive": {

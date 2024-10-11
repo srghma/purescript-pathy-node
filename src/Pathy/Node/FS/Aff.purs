@@ -8,8 +8,10 @@ module Pathy.Node.FS.Aff
   , chown
   , copyFile
   , copyFile'
-  , cp
-  , cp'
+  , cpFile
+  , cpFile'
+  , cpDir
+  , cpDir'
   , fdOpen
   , glob
   , glob'
@@ -45,7 +47,9 @@ module Pathy.Node.FS.Aff
   , rename
   , rm
   , rm'_dir
+  , rmOptionsDefault_Dir
   , rm'_file
+  , rmOptionsDefault_File
   , rmdir
   , rmdir'
   , stat
@@ -60,43 +64,49 @@ module Pathy.Node.FS.Aff
   , writeTextFile'
   ) where
 
+import Node.FS.Options
 import Prelude
 
 import Data.DateTime (DateTime)
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe(..))
 import Data.Traversable (traverse)
+import Data.Tuple (Tuple(..))
+import Effect (Effect)
 import Effect.Aff (Aff, Error)
+import Effect.Unsafe (unsafePerformEffect)
 import Node.Buffer (Buffer)
 import Node.Encoding (Encoding)
 import Node.FS.Aff as F
-import Node.FS.Constants (AccessMode, CopyMode, FileFlags)
+import Node.FS.Constants (AccessMode, CopyMode, FileFlags, copyFile_NO_FLAGS)
 import Node.FS.Dirent as FS
-import Node.FS.Options
 import Node.FS.Perms (Perms)
 import Node.FS.Stats (Stats)
 import Node.FS.Types (FileDescriptor, FileMode, SymlinkType)
-import Pathy (class IsDirOrFile, class IsRelOrAbs, Abs, Dir, File, printPath)
+import Node.Path (FilePath)
+import Pathy (class IsDirOrFile, class IsRelOrAbs, Abs, AbsFile, Dir, File, Path, parsePath, printPath)
 import Pathy.Node.FS.Dir (Dir(..)) as PathyFS
 import Pathy.Node.FS.Dirent (Dirent(..)) as PathyFS
-import Pathy.Node.Internal.Utils (parsePathOrThrow, class AnyDirToVariant)
-import Pathy.Node.OS.Internal.CurrentParserPrinter (currentPrinter)
+import Pathy.Node.FS.Options as Pathy.Node.FS.Options
+import Pathy.Node.Internal.Utils (parsePathOrThrow)
+import Pathy.Node.OS.Internal.CurrentParserPrinter (currentParser, currentPrinter)
 import Pathy.Path (AbsAnyPathVariant, AbsDir, AnyAnyPathVariant)
 import Pathy.Sandboxed (SandboxedPath)
+import Record as Record
 import Type.Prelude (Proxy(..))
 
 moduleName :: String
 moduleName = "Pathy.Node.FS"
 
-access :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> Aff (Maybe Error)
+access :: forall b. IsDirOrFile b => SandboxedPath b -> Aff (Maybe Error)
 access path = F.access (printPath currentPrinter path)
 
-access' :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> AccessMode -> Aff (Maybe Error)
+access' :: forall b. IsDirOrFile b => SandboxedPath b -> AccessMode -> Aff (Maybe Error)
 access' path = F.access' (printPath currentPrinter path)
 
-copyFile :: forall a b. IsRelOrAbs a => IsRelOrAbs b => SandboxedPath File -> SandboxedPath File -> Aff Unit
+copyFile :: forall b. IsRelOrAbs b => SandboxedPath File -> SandboxedPath File -> Aff Unit
 copyFile fromPath toPath = F.copyFile (printPath currentPrinter fromPath) (printPath currentPrinter toPath)
 
-copyFile' :: forall a b. IsRelOrAbs a => IsRelOrAbs b => SandboxedPath File -> SandboxedPath File -> CopyMode -> Aff Unit
+copyFile' :: forall b. IsRelOrAbs b => SandboxedPath File -> SandboxedPath File -> CopyMode -> Aff Unit
 copyFile' src dest = F.copyFile' (printPath currentPrinter src) (printPath currentPrinter dest)
 
 -- Due to platform inconsistencies, avoid trailing X characters in prefix
@@ -109,34 +119,34 @@ mkdtemp file = F.mkdtemp (printPath currentPrinter file) >>= \filePath -> parseP
 mkdtemp' :: SandboxedPath File -> Encoding -> Aff AbsDir
 mkdtemp' file encoding = F.mkdtemp' (printPath currentPrinter file) encoding >>= \filePath -> parsePathOrThrow (Proxy :: _ "Path Abs Dir") { filePath, moduleName, functionName: "mkdtemp'" }
 
-rename :: forall a c. IsRelOrAbs a => IsRelOrAbs c => SandboxedPath File -> SandboxedPath File -> Aff Unit
+rename :: forall c. IsRelOrAbs c => SandboxedPath File -> SandboxedPath File -> Aff Unit
 rename oldPath newPath = F.rename (printPath currentPrinter oldPath) (printPath currentPrinter newPath)
 
 truncate :: SandboxedPath File -> Int -> Aff Unit
 truncate file len = F.truncate (printPath currentPrinter file) len
 
-chown :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> Int -> Int -> Aff Unit
+chown :: forall b. IsDirOrFile b => SandboxedPath b -> Int -> Int -> Aff Unit
 chown path uid gid = F.chown (printPath currentPrinter path) uid gid
 
-chmod :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> Perms -> Aff Unit
+chmod :: forall b. IsDirOrFile b => SandboxedPath b -> Perms -> Aff Unit
 chmod path perms = F.chmod (printPath currentPrinter path) perms
 
-stat :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> Aff Stats
+stat :: forall b. IsDirOrFile b => SandboxedPath b -> Aff Stats
 stat path = F.stat (printPath currentPrinter path)
 
-lstat :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> Aff Stats
+lstat :: forall b. IsDirOrFile b => SandboxedPath b -> Aff Stats
 lstat path = F.lstat (printPath currentPrinter path)
 
 -- hardlink for a file, no dirs
-link :: forall a b. IsRelOrAbs a => IsRelOrAbs b => SandboxedPath File -> SandboxedPath File -> Aff Unit
+link :: forall b. IsRelOrAbs b => SandboxedPath File -> SandboxedPath File -> Aff Unit
 link existingPath newPath = F.link (printPath currentPrinter existingPath) (printPath currentPrinter newPath)
 
 -- creates
-symlink :: forall a b c d. IsRelOrAbs a => IsRelOrAbs c => IsDirOrFile b => IsDirOrFile d => SandboxedPath b -> SandboxedPath d -> SymlinkType -> Aff Unit
-symlink target path type_ = F.symlink (printPath currentPrinter target) (printPath currentPrinter path) type_
+symlink :: forall b d. IsDirOrFile b => IsDirOrFile d => SandboxedPath b -> SandboxedPath d -> SymlinkType -> Aff Unit
+symlink target path = F.symlink (printPath currentPrinter target) (printPath currentPrinter path)
 
 -- reads
-readlink :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> Aff AnyAnyPathVariant
+readlink :: forall b. IsDirOrFile b => SandboxedPath b -> Aff AnyAnyPathVariant
 readlink path = F.readlink (printPath currentPrinter path) >>= \filePath -> parsePathOrThrow
   (Proxy :: _ "AnyAnyPathVariant")
   { filePath
@@ -144,10 +154,10 @@ readlink path = F.readlink (printPath currentPrinter path) >>= \filePath -> pars
   , functionName: "readlink"
   }
 
-readlinkBuffer :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> Aff Buffer
+readlinkBuffer :: forall b. IsDirOrFile b => SandboxedPath b -> Aff Buffer
 readlinkBuffer path = F.readlinkBuffer (printPath currentPrinter path)
 
-realpath :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> Aff AbsAnyPathVariant -- TODO: read stats, if dir - add / to the end to parse ad dir
+realpath :: forall b. IsDirOrFile b => SandboxedPath b -> Aff AbsAnyPathVariant -- TODO: read stats, if dir - add / to the end to parse ad dir
 realpath path = F.realpath (printPath currentPrinter path) >>= \filePath -> parsePathOrThrow
   (Proxy :: _ "AbsAnyPathVariant")
   { filePath
@@ -155,7 +165,7 @@ realpath path = F.realpath (printPath currentPrinter path) >>= \filePath -> pars
   , functionName: "realpath"
   }
 
-realpath' :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> RealpathOptions -> Aff AbsAnyPathVariant
+realpath' :: forall b. IsDirOrFile b => SandboxedPath b -> RealpathOptions -> Aff AbsAnyPathVariant
 realpath' path options = F.realpath' (printPath currentPrinter path) options >>= \filePath -> parsePathOrThrow
   (Proxy :: _ "AbsAnyPathVariant")
   { filePath
@@ -172,7 +182,7 @@ rmdir path = F.rmdir (printPath currentPrinter path)
 rmdir' :: SandboxedPath Dir -> RmdirOptions -> Aff Unit
 rmdir' path = F.rmdir' (printPath currentPrinter path)
 
-rm :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> Aff Unit
+rm :: forall b. IsDirOrFile b => SandboxedPath b -> Aff Unit
 rm path = F.rm (printPath currentPrinter path)
 
 type RmOptions_Dir = RmOptions
@@ -195,34 +205,28 @@ mkdir :: SandboxedPath Dir -> Aff Unit
 mkdir path = F.mkdir (printPath currentPrinter path)
 
 mkdir' :: SandboxedPath Dir -> MkdirOptions -> Aff Unit
-mkdir' path options = F.mkdir' (printPath currentPrinter path) options
+mkdir' path = F.mkdir' (printPath currentPrinter path)
 
 readdir
-  :: forall relOrAbs relOrAbs_AnyPathVariant anyPathVariant_symbol
-   . IsRelOrAbs relOrAbs
-  => AnyDirToVariant anyPathVariant_symbol relOrAbs relOrAbs_AnyPathVariant
-  => SandboxedPath Dir
+  :: SandboxedPath Dir
   -> Aff (Array AbsAnyPathVariant)
 readdir path = F.readdir (printPath currentPrinter path) >>= traverse \dirpath ->
   parsePathOrThrow
     (Proxy :: _ "AbsAnyPathVariant")
     { filePath: dirpath
-    , moduleName: "Pathy.Node.FS.Dir"
+    , moduleName
     , functionName: "readdir"
     }
 
 readdir'
-  :: forall relOrAbs relOrAbs_AnyPathVariant anyPathVariant_symbol
-   . IsRelOrAbs relOrAbs
-  => AnyDirToVariant anyPathVariant_symbol relOrAbs relOrAbs_AnyPathVariant
-  => SandboxedPath Dir
+  :: SandboxedPath Dir
   -> ReaddirFilePathOptions
-  -> Aff (Array relOrAbs_AnyPathVariant)
+  -> Aff (Array AbsAnyPathVariant)
 readdir' path options = F.readdir' (printPath currentPrinter path) options >>= traverse \dirpath ->
   parsePathOrThrow
-    (Proxy :: _ anyPathVariant_symbol)
+    (Proxy :: _ "AbsAnyPathVariant")
     { filePath: dirpath
-    , moduleName: "Pathy.Node.FS.Dir"
+    , moduleName
     , functionName: "readdir'"
     }
 
@@ -249,7 +253,7 @@ readdirDirentBuffer path = F.readdirDirentBuffer (printPath currentPrinter path)
 readdirDirentBuffer' :: SandboxedPath Dir -> ReaddirDirentBufferOptions -> Aff (Array (FS.Dirent FS.DirentNameTypeBuffer))
 readdirDirentBuffer' path options = F.readdirDirentBuffer' (printPath currentPrinter path) options
 
-utimes :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> DateTime -> DateTime -> Aff Unit
+utimes :: forall b. IsDirOrFile b => SandboxedPath b -> DateTime -> DateTime -> Aff Unit
 utimes path atime mtime = F.utimes (printPath currentPrinter path) atime mtime
 
 readFile :: SandboxedPath File -> Aff Buffer
@@ -285,39 +289,37 @@ appendFile' path buffer = F.appendFile' (printPath currentPrinter path) buffer
 appendTextFile :: Encoding -> SandboxedPath File -> String -> Aff Unit
 appendTextFile encoding path text = F.appendTextFile encoding (printPath currentPrinter path) text
 
-fdOpen :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> FileFlags -> Maybe FileMode -> Aff FileDescriptor
+fdOpen :: forall b. IsDirOrFile b => SandboxedPath b -> FileFlags -> Maybe FileMode -> Aff FileDescriptor
 fdOpen path = F.fdOpen (printPath currentPrinter path)
 
-cp :: forall relOrAbs1 relOrAbs2 dirOrFile. IsRelOrAbs relOrAbs1 => IsRelOrAbs relOrAbs2 => IsDirOrFile dirOrFile => SandboxedPath dirOrFile -> SandboxedPath dirOrFile -> Aff Unit
-cp fromPath toPath = F.cp (printPath currentPrinter fromPath) (printPath currentPrinter toPath)
+cpFile :: SandboxedPath File -> SandboxedPath File -> Aff Unit
+cpFile fromPath toPath = F.cpFile (printPath currentPrinter fromPath) (printPath currentPrinter toPath)
 
-cp' :: forall relOrAbs1 relOrAbs2 dirOrFile. IsRelOrAbs relOrAbs1 => IsRelOrAbs relOrAbs2 => IsDirOrFile dirOrFile => SandboxedPath dirOrFile -> SandboxedPath dirOrFile -> CpOptions -> Aff Unit
-cp' fromPath toPath = F.cp' (printPath currentPrinter fromPath) (printPath currentPrinter toPath)
+cpFile' :: SandboxedPath File -> SandboxedPath File -> CpFileOptions -> Aff Unit
+cpFile' fromPath toPath = F.cpFile' (printPath currentPrinter fromPath) (printPath currentPrinter toPath)
+
+cpDir :: SandboxedPath Dir -> SandboxedPath Dir -> Aff Unit
+cpDir fromPath toPath = F.cpDir (printPath currentPrinter fromPath) (printPath currentPrinter toPath)
+
+cpDir' :: SandboxedPath Dir -> SandboxedPath Dir -> Pathy.Node.FS.Options.CpDirOptions -> Aff Unit
+cpDir' fromPath toPath options = F.cpDir' (printPath currentPrinter fromPath) (printPath currentPrinter toPath) (Pathy.Node.FS.Options.cpDirOptionsToCpOptionsInternal options)
 
 glob
-  :: forall relOrAbs relOrAbs_AnyPathVariant anyPathVariant_symbol
-   . IsRelOrAbs relOrAbs
-  => AnyDirToVariant anyPathVariant_symbol relOrAbs relOrAbs_AnyPathVariant
-  => Array (SandboxedPath File)
-  -> Aff (Array relOrAbs_AnyPathVariant)
-glob path = F.glob (map (printPath currentPrinter) path) >>= traverse (\filePath -> parsePathOrThrow (Proxy :: _ anyPathVariant_symbol) { filePath, moduleName: "Pathy.Node.FS.Dir", functionName: "path" })
+  :: Array (SandboxedPath File)
+  -> Aff (Array AbsAnyPathVariant)
+glob path = F.glob (map (printPath currentPrinter) path) >>= traverse (\filePath -> parsePathOrThrow (Proxy :: _ "AbsAnyPathVariant") { filePath, moduleName, functionName: "path" })
 
 glob'
-  :: forall relOrAbs relOrAbs_AnyPathVariant anyPathVariant_symbol
-   . IsRelOrAbs relOrAbs
-  => AnyDirToVariant anyPathVariant_symbol relOrAbs relOrAbs_AnyPathVariant
-  => Array (SandboxedPath File)
+  :: Array (SandboxedPath File)
   -> GlobFilePathOptions
-  -> Aff (Array relOrAbs_AnyPathVariant)
+  -> Aff (Array AbsAnyPathVariant)
 glob' paths options = do
   let filePaths = map (printPath currentPrinter) paths
   result <- F.glob' filePaths options
-  traverse (\filePath -> parsePathOrThrow (Proxy :: _ anyPathVariant_symbol) { filePath, moduleName, functionName: "glob'" }) result
+  traverse (\filePath -> parsePathOrThrow (Proxy :: _ "AbsAnyPathVariant") { filePath, moduleName, functionName: "glob'" }) result
 
 globDirent
-  :: forall relOrAbs
-   . IsRelOrAbs relOrAbs
-  => Array (SandboxedPath File)
+  :: Array (SandboxedPath File)
   -> Aff (Array (PathyFS.Dirent Abs))
 globDirent paths = do
   let filePaths = map (printPath currentPrinter) paths
@@ -325,9 +327,7 @@ globDirent paths = do
   pure $ map PathyFS.Dirent arrayDirent
 
 globDirent'
-  :: forall relOrAbs
-   . IsRelOrAbs relOrAbs
-  => Array (SandboxedPath File)
+  :: Array (SandboxedPath File)
   -> GlobDirentOptions
   -> Aff (Array (PathyFS.Dirent Abs))
 globDirent' paths options = do
@@ -335,13 +335,13 @@ globDirent' paths options = do
   arrayDirent <- F.globDirent' filePaths options
   pure $ map PathyFS.Dirent arrayDirent
 
-lchmod :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> Perms -> Aff Unit
+lchmod :: forall b. IsDirOrFile b => SandboxedPath b -> Perms -> Aff Unit
 lchmod path = F.lchmod (printPath currentPrinter path)
 
-lchown :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> Int -> Int -> Aff Unit
+lchown :: forall b. IsDirOrFile b => SandboxedPath b -> Int -> Int -> Aff Unit
 lchown path = F.lchown (printPath currentPrinter path)
 
-lutimes :: forall a b. IsRelOrAbs a => IsDirOrFile b => SandboxedPath b -> DateTime -> DateTime -> Aff Unit
+lutimes :: forall b. IsDirOrFile b => SandboxedPath b -> DateTime -> DateTime -> Aff Unit
 lutimes path = F.lutimes (printPath currentPrinter path)
 
 opendir :: SandboxedPath Dir -> Aff (PathyFS.Dir Abs)

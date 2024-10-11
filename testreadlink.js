@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
 
 // // Create a temporary directory for the test
 // const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'chown-test-'));
