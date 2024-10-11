@@ -87,7 +87,7 @@ import Pathy.Sandboxed (SandboxedPath)
 import Type.Prelude (Proxy(..))
 
 moduleName :: String
-moduleName = "Pathy.Node.FS"
+moduleName = "Pathy.Node.FS.Aff"
 
 access :: forall b. IsDirOrFile b => SandboxedPath b -> Aff (Maybe Error)
 access path = F.access (printPath currentPrinter path)

@@ -12,6 +12,9 @@ import Pathy.Node.Internal.Utils (parsePathOrThrow)
 import Pathy.Path (AbsAnyPathVariant)
 import Type.Prelude (Proxy(..))
 
+moduleName :: String
+moduleName = "Pathy.Node.FS.Options"
+
 type CpFilterFunction a = a -> a -> Boolean
 
 type CpDirOptions =
@@ -32,9 +35,6 @@ cpDirOptionsDefault =
   , preserveTimestamps: false
   , verbatimSymlinks: false
   }
-
-moduleName :: String
-moduleName = "Pathy.Node.FS.Options"
 
 cpFilterFunction_toInternal__unsafeTo__AbsAnyPathVariant :: FilePath -> AbsAnyPathVariant
 cpFilterFunction_toInternal__unsafeTo__AbsAnyPathVariant filePath = unsafePerformEffect $ parsePathOrThrow (Proxy :: _ "AbsAnyPathVariant") { filePath, moduleName, functionName: "cpDir" }
