@@ -1,10 +1,10 @@
-module Pathy.Node.FS.Aff.Dir where
+module Pathy.Node.FS.Dir.Aff where
 
 import Prelude
 
 import Data.Maybe (Maybe)
 import Effect.Aff (Aff)
-import Node.FS.Aff.Dir as F
+import Node.FS.Dir.Aff as F
 import Pathy.Node.FS.Dir (Dir(..)) as PathyFS
 import Pathy.Node.FS.Dirent (Dirent(..)) as PathyFS
 

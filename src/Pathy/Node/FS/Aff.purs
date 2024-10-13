@@ -229,20 +229,20 @@ readdirBuffer path = F.readdirBuffer (printPath currentPrinter path)
 readdirBuffer' :: SandboxedPath Dir -> ReaddirBufferOptions -> Aff (Array Buffer)
 readdirBuffer' path = F.readdirBuffer' (printPath currentPrinter path)
 
--- | Reads the contents of a directory and returns an Aff (Array (Dirent DirentNameTypeString)).
+-- | Reads the contents of a directory and returns an Aff (Array (Dirent DirentNameString)).
 readdirDirent :: SandboxedPath Dir -> Aff (Array PathyFS.Dirent)
 readdirDirent path = map (map PathyFS.Dirent) $ F.readdirDirent (printPath currentPrinter path)
 
--- | Reads the contents of a directory with options and returns Aff (Array (Dirent DirentNameTypeString)).
+-- | Reads the contents of a directory with options and returns Aff (Array (Dirent DirentNameString)).
 readdirDirent' :: SandboxedPath Dir -> ReaddirDirentOptions -> Aff (Array PathyFS.Dirent)
 readdirDirent' path options = map (map PathyFS.Dirent) $ F.readdirDirent' (printPath currentPrinter path) options
 
 -- | Reads the contents of a directory.
-readdirDirentBuffer :: SandboxedPath Dir -> Aff (Array (FS.Dirent FS.DirentNameTypeBuffer))
+readdirDirentBuffer :: SandboxedPath Dir -> Aff (Array (FS.Dirent FS.DirentNameBuffer))
 readdirDirentBuffer path = F.readdirDirentBuffer (printPath currentPrinter path)
 
 -- | Reads the contents of a directory.
-readdirDirentBuffer' :: SandboxedPath Dir -> ReaddirDirentBufferOptions -> Aff (Array (FS.Dirent FS.DirentNameTypeBuffer))
+readdirDirentBuffer' :: SandboxedPath Dir -> ReaddirDirentBufferOptions -> Aff (Array (FS.Dirent FS.DirentNameBuffer))
 readdirDirentBuffer' path options = F.readdirDirentBuffer' (printPath currentPrinter path) options
 
 utimes :: forall b. IsDirOrFile b => SandboxedPath b -> DateTime -> DateTime -> Aff Unit

@@ -18,7 +18,7 @@ import Node.FS.Options (opendirOptionsDefault, rmOptionsDefault) as A
 import Node.FS.Perms (permsAll)
 import Pathy (class IsDirOrFile, class IsRelOrAbs, Abs, Dir, printPath)
 import Pathy.Node.FS.Aff (mkdir, mkdir', opendir', rm'_dir, writeTextFile) as A
-import Pathy.Node.FS.Aff.Dir (entries)
+import Pathy.Node.FS.Dir.Aff (entries)
 import Pathy.Node.FS.Dir (path) as PathyFS
 import Pathy.Node.FS.Dirent (Dirent, parentPath) as PathyFS
 import Pathy.Node.OS.Internal.CurrentParserPrinter (currentPrinter)

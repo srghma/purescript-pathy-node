@@ -10,7 +10,7 @@ import Node.FS.Options (rmOptionsDefault) as A
 import Node.FS.Perms (permsAll)
 import Pathy (Dir, File, printPath)
 import Pathy.Node.FS.Aff (cpDir, cpFile, globDirent, mkdir, mkdir', rm'_dir, writeTextFile) as A
-import Pathy.Node.FS.Dirent (Dirent, isBlockDevice, isCharacterDevice, isDirectory, isFIFO, isFile, isSocket, isSymbolicLink, name, parentPath) as PathyFS
+import Pathy.Node.FS.Dirent as PathyFS
 import Pathy.Node.OS.Internal.CurrentParserPrinter (currentPrinter)
 import Pathy.Node.Process (cwd) as PathyFS
 import Pathy.Path (dir, (</>))
@@ -34,24 +34,12 @@ prepare outerTmpDir = do
 direntInfo
   :: PathyFS.Dirent
   -> { parentPath :: SandboxedPath Dir
-     , isBlockDevice :: Boolean
-     , isCharacterDevice :: Boolean
-     , isDirectory :: Boolean
-     , isFIFO :: Boolean
-     , isFile :: Boolean
-     , isSocket :: Boolean
-     , isSymbolicLink :: Boolean
+     , type :: PathyFS.DirentType
      , name :: String
      }
 direntInfo dirent =
   { parentPath: sandboxAny $ PathyFS.parentPath dirent
-  , isBlockDevice: PathyFS.isBlockDevice dirent
-  , isCharacterDevice: PathyFS.isCharacterDevice dirent
-  , isDirectory: PathyFS.isDirectory dirent
-  , isFIFO: PathyFS.isFIFO dirent
-  , isFile: PathyFS.isFile dirent
-  , isSocket: PathyFS.isSocket dirent
-  , isSymbolicLink: PathyFS.isSymbolicLink dirent
+  , type: PathyFS.getType dirent
   , name: PathyFS.name dirent
   }
 
@@ -67,23 +55,11 @@ test1 outerTmpDir = do
     { actual: map direntInfo res
     , expected:
         [ { parentPath: outerTmpDir
-          , isBlockDevice: false
-          , isCharacterDevice: false
-          , isDirectory: true
-          , isFIFO: false
-          , isFile: false
-          , isSocket: false
-          , isSymbolicLink: false
+          , type: PathyFS.DirentType_Directory
           , name: "dir1"
           }
         , { parentPath: outerTmpDir
-          , isBlockDevice: false
-          , isCharacterDevice: false
-          , isDirectory: true
-          , isFIFO: false
-          , isFile: false
-          , isSocket: false
-          , isSymbolicLink: false
+          , type: PathyFS.DirentType_Directory
           , name: "dir2"
           }
         ]
@@ -98,53 +74,23 @@ test2 outerTmpDir = do
     { actual: map direntInfo res
     , expected:
         [ { parentPath: outerTmpDir
-          , isBlockDevice: false
-          , isCharacterDevice: false
-          , isDirectory: false
-          , isFIFO: false
-          , isFile: true
-          , isSocket: false
-          , isSymbolicLink: false
+          , type: PathyFS.DirentType_File
           , name: "1.js"
           }
         , { parentPath: outerTmpDir <///> (Proxy :: _ "dir2")
-          , isBlockDevice: false
-          , isCharacterDevice: false
-          , isDirectory: false
-          , isFIFO: false
-          , isFile: true
-          , isSocket: false
-          , isSymbolicLink: false
+          , type: PathyFS.DirentType_File
           , name: "4.js"
           }
         , { parentPath: outerTmpDir <///> (Proxy :: _ "dir2")
-          , isBlockDevice: false
-          , isCharacterDevice: false
-          , isDirectory: false
-          , isFIFO: false
-          , isFile: true
-          , isSocket: false
-          , isSymbolicLink: false
+          , type: PathyFS.DirentType_File
           , name: "5.js"
           }
         , { parentPath: outerTmpDir <///> (Proxy :: _ "dir1")
-          , isBlockDevice: false
-          , isCharacterDevice: false
-          , isDirectory: false
-          , isFIFO: false
-          , isFile: true
-          , isSocket: false
-          , isSymbolicLink: false
+          , type: PathyFS.DirentType_File
           , name: "4.js"
           }
         , { parentPath: outerTmpDir <///> (Proxy :: _ "dir1")
-          , isBlockDevice: false
-          , isCharacterDevice: false
-          , isDirectory: false
-          , isFIFO: false
-          , isFile: true
-          , isSocket: false
-          , isSymbolicLink: false
+          , type: PathyFS.DirentType_File
           , name: "5.js"
           }
         ]
