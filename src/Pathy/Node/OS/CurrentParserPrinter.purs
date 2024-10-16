@@ -1,4 +1,4 @@
-module Pathy.Node.OS.Internal.CurrentParserPrinter where
+module Pathy.Node.OS.CurrentParserPrinter where
 
 import Pathy.Parser (Parser, posixParser)
 import Prelude

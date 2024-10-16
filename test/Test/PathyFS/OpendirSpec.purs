@@ -1,4 +1,6 @@
-module Test.PathyFS.OpendirSpec where
+module Test.PathyFS.OpendirSpec
+  ( spec
+  ) where
 
 import Prelude
 
@@ -21,7 +23,7 @@ import Pathy.Node.FS.Aff (mkdir, mkdir', opendir', rm'_dir, writeTextFile) as A
 import Pathy.Node.FS.Dir.Aff (entries)
 import Pathy.Node.FS.Dir (path) as PathyFS
 import Pathy.Node.FS.Dirent (Dirent, parentPath) as PathyFS
-import Pathy.Node.OS.Internal.CurrentParserPrinter (currentPrinter)
+import Pathy.Node.OS.CurrentParserPrinter (currentPrinter)
 import Pathy.Node.Process (cwd) as PathyFS
 import Pathy.Path (AbsDir, Path, dir, (</>))
 import Pathy.Sandboxed (SandboxedPath, sandbox, sandboxAny, (<///>))
@@ -107,12 +109,11 @@ sandboxOrThrow root path = sandbox root path # maybe (throwError $ error $ "cann
 
 spec :: Spec Unit
 spec = do
-  it "test1" do
+  it "opendir spec" do
     cwd <- liftEffect PathyFS.cwd
     logShow $ printPath currentPrinter (sandboxAny cwd)
     -- logShow $ debugPrintPath currentPrinter cwd
-    -- (outerTmpDir :: SandboxedPath Dir) <- sandboxOrThrow cwd (currentDir </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test"))
-    -- (outerTmpDir :: SandboxedPath Dir) <- sandboxOrThrow cwd (currentDir </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test"))
+    (outerTmpDir_try1 :: SandboxedPath Dir) <- sandboxOrThrow cwd (cwd </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test"))
     let (outerTmpDir :: SandboxedPath Dir) = sandboxAny (cwd </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test"))
     logShow $ printPath currentPrinter outerTmpDir
     prepare outerTmpDir

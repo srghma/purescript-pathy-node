@@ -11,7 +11,7 @@ import Node.FS.Perms (permsAll)
 import Pathy (Dir, File, printPath)
 import Pathy.Node.FS.Aff (cpDir, cpFile, globDirent, mkdir, mkdir', rm'_dir, writeTextFile) as A
 import Pathy.Node.FS.Dirent (Dirent, DirentType(..), getType, name, parentPath) as PathyFS
-import Pathy.Node.OS.Internal.CurrentParserPrinter (currentPrinter)
+import Pathy.Node.OS.CurrentParserPrinter (currentPrinter)
 import Pathy.Node.Process (cwd) as PathyFS
 import Pathy.Path (dir, (</>))
 import Pathy.Sandboxed (SandboxedPath, sandboxAny, (<///>))
@@ -99,7 +99,7 @@ test2 outerTmpDir = do
 
 spec :: Spec Unit
 spec = do
-  it "test1" do
+  it "glob spec" do
     cwd <- liftEffect PathyFS.cwd
     logShow $ printPath currentPrinter (sandboxAny cwd)
     let (outerTmpDir :: SandboxedPath Dir) = sandboxAny (cwd </> dir (Proxy :: _ "tmp") </> dir (Proxy :: _ "dir-entries-test"))

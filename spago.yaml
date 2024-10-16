@@ -24,6 +24,8 @@ package:
     - strings
     - transformers
     - typelevel-prelude
+    - pathy
+    - node-fs
   test:
     main: Test.Main
     dependencies:

@@ -5,7 +5,7 @@ import Node.FS.Stream (WriteStreamOptions, ReadStreamOptions)
 import Node.FS.Stream as F
 import Node.Stream (Readable, Writable)
 import Pathy (File, SandboxedPath, printPath)
-import Pathy.Node.OS.Internal.CurrentParserPrinter (currentPrinter)
+import Pathy.Node.OS.CurrentParserPrinter (currentPrinter)
 import Prim.Row as Row
 
 moduleName :: String

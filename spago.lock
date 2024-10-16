@@ -13,11 +13,13 @@
             "foldable-traversable",
             "maybe",
             "node-buffer",
+            "node-fs",
             "node-os",
             "node-path",
             "node-process",
             "node-streams",
             "optparse",
+            "pathy",
             "prelude",
             "strings",
             "transformers",
@@ -51,17 +53,20 @@
             "identity",
             "integers",
             "invariant",
+            "js-date",
             "lazy",
             "lists",
             "maybe",
             "newtype",
             "node-buffer",
             "node-event-emitter",
+            "node-fs",
             "node-os",
             "node-path",
             "node-process",
             "node-streams",
             "nonempty",
+            "now",
             "nullable",
             "numbers",
             "open-memoize",
@@ -70,9 +75,11 @@
             "orders",
             "parallel",
             "partial",
+            "pathy",
             "posix-types",
             "prelude",
             "profunctor",
+            "record",
             "refs",
             "safe-coerce",
             "st",
@@ -83,7 +90,8 @@
             "type-equality",
             "typelevel-prelude",
             "unfoldable",
-            "unsafe-coerce"
+            "unsafe-coerce",
+            "variant"
           ]
         },
         "test": {
@@ -1478,6 +1486,29 @@
       "integrity": "sha256-fwXerld6Xw1VkReh8yeQsdtLVrjfGiVuC5bA1Wyo/J4=",
       "dependencies": []
     },
+    "pathy": {
+      "type": "local",
+      "path": "/home/srghma/projects/purescript-pathy",
+      "dependencies": [
+        "arrays",
+        "either",
+        "foldable-traversable",
+        "gen",
+        "identity",
+        "lists",
+        "maybe",
+        "newtype",
+        "nonempty",
+        "partial",
+        "prelude",
+        "strings",
+        "tailrec",
+        "tuples",
+        "typelevel-prelude",
+        "unsafe-coerce",
+        "variant"
+      ]
+    },
     "pipes": {
       "type": "registry",
       "version": "8.0.0",
@@ -1741,6 +1772,21 @@
       "version": "6.0.0",
       "integrity": "sha256-IqIYW4Vkevn8sI+6aUwRGvd87tVL36BBeOr0cGAE7t0=",
       "dependencies": []
+    },
+    "variant": {
+      "type": "registry",
+      "version": "8.0.0",
+      "integrity": "sha256-SR//zQDg2dnbB8ZHslcxieUkCeNlbMToapvmh9onTtw=",
+      "dependencies": [
+        "enums",
+        "lists",
+        "maybe",
+        "partial",
+        "prelude",
+        "record",
+        "tuples",
+        "unsafe-coerce"
+      ]
     }
   }
 }

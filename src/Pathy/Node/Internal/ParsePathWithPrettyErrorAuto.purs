@@ -9,7 +9,7 @@ import Effect.Aff (Aff)
 import Effect.Exception (Error)
 import Node.Path (FilePath)
 import Pathy (AbsAnyPathVariant, AnyAnyPathVariant, Parser, Path, RelAnyPathVariant)
-import Pathy.Node.OS.Internal.CurrentParserPrinter (currentParser)
+import Pathy.Node.OS.CurrentParserPrinter (currentParser)
 import Pathy.Node.OS.Internal.ParsePathWithPrettyError as Internal
 import Pathy.Parser (parseAbsAnyPathVariant, parseAbsDir, parseAbsFile, parseAnyAnyPathVariant, parseRelAnyPathVariant, parseRelDir, parseRelFile) as Pathy
 import Pathy.Phantom (Abs, Dir, File, Rel, RelOrAbs)
