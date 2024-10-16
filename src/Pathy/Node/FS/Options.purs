@@ -8,7 +8,7 @@ import Effect.Unsafe (unsafePerformEffect)
 import Node.FS.Constants (CopyMode, copyFile_NO_FLAGS)
 import Node.FS.Options as NodeFs
 import Node.Path (FilePath)
-import Pathy.Node.Internal.Utils (parsePathOrThrow)
+import Pathy.Node.Internal.ParsePathWithPrettyErrorAuto (parsePathOrThrow)
 import Pathy.Path (AbsAnyPathVariant)
 import Type.Prelude (Proxy(..))
 

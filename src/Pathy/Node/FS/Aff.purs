@@ -80,7 +80,7 @@ import Pathy (class IsDirOrFile, class IsRelOrAbs, Dir, File, printPath)
 import Pathy.Node.FS.Dir (Dir(..)) as PathyFS
 import Pathy.Node.FS.Dirent (Dirent(..)) as PathyFS
 import Pathy.Node.FS.Options as Pathy.Node.FS.Options
-import Pathy.Node.Internal.Utils (parsePathOrThrow)
+import Pathy.Node.Internal.ParsePathWithPrettyErrorAuto (parsePathOrThrow)
 import Pathy.Node.OS.Internal.CurrentParserPrinter (currentPrinter)
 import Pathy.Path (AbsAnyPathVariant, AbsDir, AnyAnyPathVariant)
 import Pathy.Sandboxed (SandboxedPath)

@@ -6,7 +6,7 @@ import Prelude
 import Effect (Effect)
 import Effect.Unsafe (unsafePerformEffect)
 import Node.OS as OS
-import Pathy.Node.Internal.Utils (parsePathOrThrow)
+import Pathy.Node.Internal.ParsePathWithPrettyErrorAuto (parsePathOrThrow)
 import Type.Prelude (Proxy(..))
 
 moduleName :: String

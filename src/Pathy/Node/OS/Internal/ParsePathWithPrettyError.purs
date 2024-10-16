@@ -1,4 +1,4 @@
-module Pathy.Node.OS.Internal.Utils where
+module Pathy.Node.OS.Internal.ParsePathWithPrettyError where
 
 import Pathy.Parser (Parser)
 import Prelude

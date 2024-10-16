@@ -5,7 +5,7 @@ import Prelude
 
 import Effect (Effect)
 import Node.Process as Process
-import Pathy.Node.Internal.Utils (parsePathOrThrow)
+import Pathy.Node.Internal.ParsePathWithPrettyErrorAuto (parsePathOrThrow)
 import Type.Prelude (Proxy(..))
 
 moduleName :: String

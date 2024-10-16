@@ -5,7 +5,7 @@ import Prelude
 import Effect.Unsafe (unsafePerformEffect)
 import Node.FS.Dir as FS
 import Pathy as P
-import Pathy.Node.Internal.Utils (parsePathOrThrow)
+import Pathy.Node.Internal.ParsePathWithPrettyErrorAuto (parsePathOrThrow)
 import Type.Prelude (Proxy(..))
 
 moduleName :: String

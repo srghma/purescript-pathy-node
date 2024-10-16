@@ -1,4 +1,4 @@
-module Pathy.Node.Internal.Utils where
+module Pathy.Node.Internal.ParsePathWithPrettyErrorAuto where
 
 import Prelude
 
@@ -11,21 +11,11 @@ import Effect.Exception (Error)
 import Node.Path (FilePath)
 import Pathy (AbsAnyPathVariant, AnyAnyPathVariant, Parser, Path, RelAnyPathVariant)
 import Pathy.Node.OS.Internal.CurrentParserPrinter (currentParser)
-import Pathy.Node.OS.Internal.Utils as Internal
+import Pathy.Node.OS.Internal.ParsePathWithPrettyError as Internal
 import Pathy.Parser (parseAbsAnyPathVariant, parseAbsDir, parseAbsFile, parseAnyAnyPathVariant, parseRelAnyPathVariant, parseRelDir, parseRelFile) as Pathy
 import Pathy.Phantom (Abs, Dir, File, Rel, RelOrAbs)
 import Type.Prelude (Proxy(..))
-
-ensureTrailingSlash :: String -> String
-ensureTrailingSlash s =
-  case String.charAt (String.length s - 1) s of
-    Just '/' -> s
-    _ -> s <> "/"
-
-data EnsureTrailingSlash
-  -- | EnsureTrailingSlash_OnlyIfGettingStatsWillTellThatItIsReallyADear
-  = EnsureTrailingSlash_Always
-  | EnsureTrailingSlash_No
+import Pathy.Node.OS.Internal.EnsureTrailingSlash (ensureTrailingSlash)
 
 class ParseToPathVariantOrThrow_KnownOutputType :: Symbol -> Type -> Constraint
 class ParseToPathVariantOrThrow_KnownOutputType symbol variant | symbol -> variant where
@@ -65,6 +55,11 @@ else instance AnyDirToVariant "Path Abs Dir" Rel (Path Abs Dir) where
   anyDirToVariant_proxy = (Proxy :: Proxy "Path Abs Dir")
 else instance AnyDirToVariant "Path Abs File" Abs (Path Abs File) where
   anyDirToVariant_proxy = (Proxy :: Proxy "Path Abs File")
+
+data EnsureTrailingSlash
+  -- | EnsureTrailingSlash_OnlyIfGettingStatsWillTellThatItIsReallyADear
+  = EnsureTrailingSlash_Always
+  | EnsureTrailingSlash_No
 
 class EnsureTrailingSlashM m where
   ensureTrailingSlashM :: EnsureTrailingSlash -> String -> m String
