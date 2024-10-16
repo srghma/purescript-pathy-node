@@ -7,43 +7,37 @@ package:
       githubOwner: srghma
       githubRepo: purescript-pathy-node
   dependencies:
+    - aff
     - datetime
     - effect
     - either
-    - enums
     - exceptions
-    - functions
-    - integers
-    - js-date
+    - foldable-traversable
     - maybe
     - node-buffer
-    - node-path
     - node-os
+    - node-path
+    - node-process
     - node-streams
-    - nullable
-    - partial
+    - optparse
     - prelude
     - strings
-    - unsafe-coerce
-    - refs
-    - pathy
-    - node-fs
-    - node-process
-    - strings
+    - transformers
+    - typelevel-prelude
   test:
     main: Test.Main
     dependencies:
-      - console
       - aff
       - arrays
       - assert
-      - spec-node
+      - console
+      - spec
       - spec-discovery
-      - debug
+      - spec-node
 
 workspace:
   packageSet:
-    registry: 60.5.0
+    registry: 60.5.1
   extraPackages:
     node-fs:
       path: /home/srghma/projects/purescript-node-fs

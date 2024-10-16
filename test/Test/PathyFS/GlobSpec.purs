@@ -10,7 +10,7 @@ import Node.FS.Options (rmOptionsDefault) as A
 import Node.FS.Perms (permsAll)
 import Pathy (Dir, File, printPath)
 import Pathy.Node.FS.Aff (cpDir, cpFile, globDirent, mkdir, mkdir', rm'_dir, writeTextFile) as A
-import Pathy.Node.FS.Dirent as PathyFS
+import Pathy.Node.FS.Dirent (Dirent, DirentType(..), getType, name, parentPath) as PathyFS
 import Pathy.Node.OS.Internal.CurrentParserPrinter (currentPrinter)
 import Pathy.Node.Process (cwd) as PathyFS
 import Pathy.Path (dir, (</>))

@@ -3,8 +3,7 @@ module Pathy.Node.Internal.ParsePathWithPrettyErrorAuto where
 import Prelude
 
 import Control.Monad.Error.Class (class MonadThrow)
-import Data.Maybe (Maybe(..))
-import Data.String.CodeUnits as String
+import Data.Maybe (Maybe)
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Exception (Error)

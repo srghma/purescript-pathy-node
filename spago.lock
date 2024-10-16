@@ -5,34 +5,30 @@
         "path": "./",
         "core": {
           "dependencies": [
+            "aff",
             "datetime",
             "effect",
             "either",
-            "enums",
             "exceptions",
-            "functions",
-            "integers",
-            "js-date",
+            "foldable-traversable",
             "maybe",
             "node-buffer",
-            "node-fs",
             "node-os",
             "node-path",
             "node-process",
             "node-streams",
-            "nullable",
-            "partial",
-            "pathy",
+            "optparse",
             "prelude",
-            "refs",
             "strings",
-            "unsafe-coerce"
+            "transformers",
+            "typelevel-prelude"
           ],
           "build_plan": [
             "aff",
             "arraybuffer-types",
             "arrays",
             "bifunctors",
+            "catenable-lists",
             "console",
             "const",
             "contravariant",
@@ -44,40 +40,39 @@
             "enums",
             "exceptions",
             "exists",
+            "exitcodes",
             "foldable-traversable",
             "foreign",
             "foreign-object",
+            "free",
             "functions",
             "functors",
             "gen",
             "identity",
             "integers",
             "invariant",
-            "js-date",
             "lazy",
             "lists",
             "maybe",
             "newtype",
             "node-buffer",
             "node-event-emitter",
-            "node-fs",
             "node-os",
             "node-path",
             "node-process",
             "node-streams",
             "nonempty",
-            "now",
             "nullable",
             "numbers",
+            "open-memoize",
+            "optparse",
             "ordered-collections",
             "orders",
             "parallel",
             "partial",
-            "pathy",
             "posix-types",
             "prelude",
             "profunctor",
-            "record",
             "refs",
             "safe-coerce",
             "st",
@@ -88,8 +83,7 @@
             "type-equality",
             "typelevel-prelude",
             "unfoldable",
-            "unsafe-coerce",
-            "variant"
+            "unsafe-coerce"
           ]
         },
         "test": {
@@ -98,7 +92,7 @@
             "arrays",
             "assert",
             "console",
-            "debug",
+            "spec",
             "spec-discovery",
             "spec-node"
           ],
@@ -118,7 +112,6 @@
             "contravariant",
             "control",
             "datetime",
-            "debug",
             "distributive",
             "effect",
             "either",
@@ -184,7 +177,7 @@
     },
     "package_set": {
       "address": {
-        "registry": "60.5.0"
+        "registry": "60.5.1"
       },
       "compiler": ">=0.15.15 <0.16.0",
       "content": {
@@ -592,7 +585,7 @@
         "spec": "8.1.0",
         "spec-discovery": "8.4.0",
         "spec-mocha": "5.1.1",
-        "spec-node": "0.0.2",
+        "spec-node": "0.0.3",
         "spec-quickcheck": "5.0.2",
         "spec-reporter-xunit": "0.7.1",
         "splitmix": "2.1.0",
@@ -913,15 +906,6 @@
         "partial",
         "prelude",
         "tuples"
-      ]
-    },
-    "debug": {
-      "type": "registry",
-      "version": "6.0.2",
-      "integrity": "sha256-vmkYFuXYuELBzeauvgHG6E6Kf/Hp1dAnxwE9ByHfwSg=",
-      "dependencies": [
-        "functions",
-        "prelude"
       ]
     },
     "distributive": {
@@ -1494,29 +1478,6 @@
       "integrity": "sha256-fwXerld6Xw1VkReh8yeQsdtLVrjfGiVuC5bA1Wyo/J4=",
       "dependencies": []
     },
-    "pathy": {
-      "type": "local",
-      "path": "/home/srghma/projects/purescript-pathy",
-      "dependencies": [
-        "arrays",
-        "either",
-        "foldable-traversable",
-        "gen",
-        "identity",
-        "lists",
-        "maybe",
-        "newtype",
-        "nonempty",
-        "partial",
-        "prelude",
-        "strings",
-        "tailrec",
-        "tuples",
-        "typelevel-prelude",
-        "unsafe-coerce",
-        "variant"
-      ]
-    },
     "pipes": {
       "type": "registry",
       "version": "8.0.0",
@@ -1637,8 +1598,8 @@
     },
     "spec-node": {
       "type": "registry",
-      "version": "0.0.2",
-      "integrity": "sha256-2SZRy6QjokHms6+d150pShlbnOg+9XWYkrUUdX/QDjc=",
+      "version": "0.0.3",
+      "integrity": "sha256-Bjzg6l4uOfMN/FV0SKuT1Mm8eMP9sloLGVcY/0MeMnI=",
       "dependencies": [
         "aff",
         "argonaut-codecs",
@@ -1780,21 +1741,6 @@
       "version": "6.0.0",
       "integrity": "sha256-IqIYW4Vkevn8sI+6aUwRGvd87tVL36BBeOr0cGAE7t0=",
       "dependencies": []
-    },
-    "variant": {
-      "type": "registry",
-      "version": "8.0.0",
-      "integrity": "sha256-SR//zQDg2dnbB8ZHslcxieUkCeNlbMToapvmh9onTtw=",
-      "dependencies": [
-        "enums",
-        "lists",
-        "maybe",
-        "partial",
-        "prelude",
-        "record",
-        "tuples",
-        "unsafe-coerce"
-      ]
     }
   }
 }
